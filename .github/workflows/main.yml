@@ -1,0 +1,31 @@
+# .github/workflows/cd-pipeline.yml
+
+name: Flexible CD Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_command:
+        description: 'Command to Build the App (e.g., docker build -t myapp .)'
+        required: true
+      deploy_command:
+        description: 'Command to Deploy the App (e.g., docker run -d myapp)'
+        required: true
+
+jobs:
+  flexible-cd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Build Command
+        run: |
+          echo "Running build command: ${{ github.event.inputs.build_command }}"
+          ${{ github.event.inputs.build_command }}
+
+      - name: Run Deploy Command
+        run: |
+          echo "Running deploy command: ${{ github.event.inputs.deploy_command }}"
+          ${{ github.event.inputs.deploy_command }}

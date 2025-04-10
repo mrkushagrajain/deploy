@@ -1,0 +1,45 @@
+name: Flexible CD Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_command:
+        description: 'Docker Build Command (e.g., docker build -t myapp .)'
+        required: true
+      deploy_command:
+        description: 'Docker Deploy Command (e.g., docker run -d myapp)'
+        required: true
+
+jobs:
+  flexible-cd:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Docker
+        run: |
+          echo "Installing Docker..."
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          docker --version
+
+      - name: Debug - Show files
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files:"
+          ls -l
+
+      - name: Run Build Command
+        run: |
+          echo "Running build command: ${{ github.event.inputs.build_command }}"
+          ${{ github.event.inputs.build_command }}
+
+      - name: Run Deploy Command
+        run: |
+          echo "Running deploy command: ${{ github.event.inputs.deploy_command }}"
+          ${{ github.event.inputs.deploy_command }}

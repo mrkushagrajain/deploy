@@ -1,0 +1,34 @@
+name: Remote Docker Runner - CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Automatically triggers when code is pushed to the main branch
+
+jobs:
+  deploy:
+    name: Remote Docker Deployment
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      # Optional: Keep for manual approval
+      url: https://example.com/approval-url
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/secre_file
+          chmod 600 ~/.ssh/secure_file
+          ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Run Docker Command on Remote
+        run: |
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
+            echo "Running docker command remotely..."
+            docker ps -a
+            docker run hello-world
+          EOF
